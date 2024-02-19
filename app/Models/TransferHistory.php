@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DataPlan extends Model
+class TransferHistory extends Model
 {
     use HasFactory;
-    
-    protected $table ='data_plans';
+
+    protected $table ='transfer_histories';
 
     protected $fillable = [
-        'name',
-        'status',
-        'operator_card_id',
+        'sender_id',
+        'reciver_id',
+        'transaction_code'
     ];
 }

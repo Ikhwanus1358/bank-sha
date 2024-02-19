@@ -5,15 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DataPlan extends Model
+class TransactionType extends Model
 {
     use HasFactory;
-    
-    protected $table ='data_plans';
+
+    protected $table ='transaction_types';
 
     protected $fillable = [
         'name',
-        'status',
-        'operator_card_id',
+        'code',
+        'action',
+        'thumbnail'
     ];
 }

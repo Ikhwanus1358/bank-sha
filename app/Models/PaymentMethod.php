@@ -4,16 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class DataPlan extends Model
+class PaymentMethod extends Model
 {
     use HasFactory;
-    
-    protected $table ='data_plans';
+
+    protected $table = 'payment_methods';
 
     protected $fillable = [
         'name',
+        'code',
         'status',
-        'operator_card_id',
+        'thumbnail'
     ];
 }
