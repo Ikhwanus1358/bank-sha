@@ -24,5 +24,11 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()], 400);
         }
+
+        $user = User::where('email', $request->email)->exists();
+
+        if ($user) {
+            return response()->json(['massage' => 'Email already taken'], 409);
+        }
     }
 }
