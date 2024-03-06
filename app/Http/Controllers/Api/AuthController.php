@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\Wallet;
+use Melihovv\Base64ImageDecoder\Base64ImageDecoder;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -30,5 +33,32 @@ class AuthController extends Controller
         if ($user) {
             return response()->json(['massage' => 'Email already taken'], 409);
         }
+        try {
+            $profilePicture = null;
+            $ktp =null;
+
+            if($request->profile_picture) {
+                $profilePicture = $this->uploadBase64Image($request->profile_picture);
+            }
+
+            if($request->ktp) {
+                $ktp = $this->uploadBase64Image($request->ktp);
+            }
+
+        } catch (\Throwable $th) {
+
+        }
+    }
+
+    private function uploadBase64Image($base64Image)
+    {
+        $decoder = new Base64ImageDecoder($dataUri, $allowedFormats = ['jpeg', 'png', 'jpg']);
+
+        $decodedContent = $decoder->getDecodedContent();
+        $format = $decoder->getFormat();
+        $image = Str::random(10).'.'.$format;
+        Storage::disk('public')->put($image, $decodedContent);
+
+        return $image;
     }
 }
