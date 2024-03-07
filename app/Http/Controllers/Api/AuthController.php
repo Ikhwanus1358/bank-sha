@@ -45,14 +45,48 @@ class AuthController extends Controller
                 $ktp = $this->uploadBase64Image($request->ktp);
             }
 
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'username' => $request->email,
+                'password' => bcrypt($request->password),
+                'profile_picture' => $profilePicture,
+                'ktp' => $ktp,
+                'verified' => ($ktp) ? true : false
+            ]);
+
+            wallet::create([
+                'user_id' => $user->id,
+                'balance' => 0,
+                'pin' => $request->pin,
+                'card_number' => $this->generationCardNumber(16)
+            ]);
+
         } catch (\Throwable $th) {
+            echo $th;
 
         }
     }
 
+    private function generationCardNumber($length)
+    {
+        $result = '';
+        for ($i=0; $i < $length; $i++){
+            $result .= mt_rand(0, 9);
+        }
+
+        $wallet = Wallet::where('card_number', $result)->exists();
+
+        if ($wallet) {
+            return $this->generationCardNumber($length);
+        }
+
+        return $result;
+    }
+
     private function uploadBase64Image($base64Image)
     {
-        $decoder = new Base64ImageDecoder($dataUri, $allowedFormats = ['jpeg', 'png', 'jpg']);
+        $decoder = new Base64ImageDecoder($base64Image, $allowedFormats = ['jpeg', 'png', 'jpg']);
 
         $decodedContent = $decoder->getDecodedContent();
         $format = $decoder->getFormat();
