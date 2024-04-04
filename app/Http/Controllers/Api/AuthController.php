@@ -11,8 +11,8 @@ use Melihovv\Base64ImageDecoder\Base64ImageDecoder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use Tymon\JWTAuth\Facades\JwtAuth;
-use Tymon\JwtAuth\Exceptions\JwtException;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JwtAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
@@ -70,6 +70,15 @@ class AuthController extends Controller
             ]);
 
             DB::commit();
+            $token = JWTAuth::attempt(['email' => $request->email, 'password' => $request->password]);
+
+            $userResponse = getUser($request->email);
+            $userResponse->token = $token;
+            $userResponse->token_expires_in = auth()->factory()->getTTL() * 60;
+            $userResponse->token_type = 'bearer';
+
+            return response()->json($userResponse);
+
         } catch (\Throwable $th) {
             DB::rollback();
             return response()->json(['message' => $th->getMessage()], 500);
@@ -91,13 +100,18 @@ class AuthController extends Controller
         }
 
         try {
-            $token = JwtAuth::attempt($credentials);
+            $token = JWTAuth::attempt($credentials);
 
             if(!$token) {
                 return response()->json(['message' => 'Login credentials are invalid']);
             }
-            return $token;
-        } catch (\Throwable $th) {
+            $userResponse = getUser($request->email);
+            $userResponse->token = $token;
+            $userResponse->token_expires_in = auth()->factory()->getTTL() * 60;
+            $userResponse->token_type = 'bearer';
+
+            return response()->json($userResponse);
+        } catch (\JWTException $th) {
             return response()->json(['message' => $th->getMessage()], 500);
         }
     }
